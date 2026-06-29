@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Rafayel Poghosyan — Senior Engineer</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -926,22 +927,43 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 function submitForm() {
   const email = document.getElementById('client-email').value.trim();
   const desc  = document.getElementById('job-desc').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
   if (!email || !desc) {
     if (!email) document.getElementById('client-email').focus();
     else document.getElementById('job-desc').focus();
     return;
   }
-  // Build mailto link and open it
-  const phone = document.getElementById('phone').value.trim();
-  const body = encodeURIComponent(
-    `Job Description:\n${desc}\n\n${phone ? 'Phone: ' + phone + '\n\n' : ''}From: ${email}`
-  );
-  window.location.href = `mailto:prafayel32@gmail.com?subject=Work Offer from ${encodeURIComponent(email)}&body=${body}`;
 
-  // Show success
-  document.getElementById('modal-form-view').style.display = 'none';
-  document.getElementById('modal-success').style.display = 'block';
-  setTimeout(closeModal, 3500);
+  const btn = document.querySelector('.form-submit');
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+  btn.style.opacity = '.7';
+
+  emailjs.init('V4AcmfvgmYrV6Vp-i');
+
+  emailjs.send('service_co0n2jo', 'template_z5291mg', {
+    from_email: email,
+    job_description: desc,
+    phone: phone || 'Not provided',
+    to_email: 'prafayel32@gmail.com',
+  })
+  .then(() => {
+    document.getElementById('modal-form-view').style.display = 'none';
+    document.getElementById('modal-success').style.display = 'block';
+    setTimeout(closeModal, 3500);
+  })
+  .catch((err) => {
+    console.error('EmailJS error:', err);
+    btn.textContent = '❌ Failed — try again';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.background = '#e74c3c';
+    setTimeout(() => {
+      btn.textContent = 'Send Message →';
+      btn.style.background = '';
+    }, 3000);
+  });
 }
 
 /* ── SCROLL REVEAL ── */
